@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TrackCaster</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0d0f14; --card: #161a22; --line: #262c38; --fg: #e8ecf3; --dim: #8b93a3; --accent: #22d3ee; --ok: #34d399; --warn: #fbbf24; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: Inter, system-ui, sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 26px; font-weight: 800; margin: 0 0 4px; }
+  h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .12em; color: var(--dim); margin: 0 0 14px; font-weight: 600; }
+  p.sub { color: var(--dim); margin: 0 0 28px; }
+  .grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+  @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .status { display: flex; gap: 10px; align-items: center; font-weight: 600; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--warn); box-shadow: 0 0 12px var(--warn); }
+  .dot.ok { background: var(--ok); box-shadow: 0 0 12px var(--ok); }
+  .now { margin-top: 10px; color: var(--dim); font-size: 14px; }
+  .stage {
+    position: relative; height: 300px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line);
+    background: radial-gradient(circle at 30% 20%, #2a2f3a, #08090c 70%),
+                repeating-linear-gradient(45deg, rgba(255,255,255,.03) 0 12px, transparent 12px 24px);
+  }
+  .stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  label { display: block; font-size: 13px; color: var(--dim); margin: 12px 0 6px; }
+  select, input[type=text], input[type=number] {
+    width: 100%; background: #0f1218; border: 1px solid var(--line); color: var(--fg);
+    padding: 9px 10px; border-radius: 8px; font: inherit; font-size: 14px;
+  }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  input[type=color] { width: 100%; height: 38px; border: 1px solid var(--line); background: #0f1218; border-radius: 8px; padding: 3px; }
+  .url { display: flex; gap: 8px; margin-top: 16px; }
+  .url code {
+    flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 13px; background: #0f1218;
+    border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; white-space: nowrap;
+  }
+  button { background: var(--accent); color: #041015; border: 0; border-radius: 8px; padding: 0 16px; font: inherit; font-weight: 700; cursor: pointer; }
+  button.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); padding: 9px 14px; }
+  ol { margin: 0; padding-left: 20px; line-height: 1.7; color: #cbd2de; font-size: 14px; }
+  ol b { color: var(--fg); }
+  .mt { margin-top: 16px; }
+  .hint { font-size: 13px; color: var(--dim); line-height: 1.5; margin: 10px 0 0; }
+  .hint b { color: var(--fg); }
+</style>
+</head>
+<body>
+<main>
+  <h1>TrackCaster</h1>
+  <p class="sub">Eigenes OBS-Overlay für Traktor – läuft lokal, ohne Konto, ohne Abo.</p>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Vorschau</h2>
+      <div class="stage"><iframe id="preview"></iframe></div>
+      <label>OBS läuft auf …</label>
+      <select id="host"><option value="localhost">diesem PC (localhost)</option></select>
+      <div class="url"><code id="url"></code><button id="copy">Kopieren</button></div>
+      <p class="hint" id="hostHint" hidden>Am Stream-PC muss dieser Rechner erreichbar sein. Beim ersten Start fragt das System nach eingehenden Verbindungen: erlauben (Windows: „Private Netzwerke"). Unter Windows hilft sonst <b>firewall-freigeben.bat</b>.</p>
+    </section>
+
+    <section class="card">
+      <h2>Status</h2>
+      <div class="status"><span class="dot" id="dot"></span><span id="conn">Warte auf Traktor …</span></div>
+      <div class="now" id="now">Noch kein Track empfangen.</div>
+
+      <h2 class="mt">Overlay anpassen</h2>
+      <label>Skin</label>
+      <select id="skin">
+        <option value="classic">Classic (wie früher)</option>
+        <option value="card">Card</option>
+        <option value="vinyl">Vinyl</option>
+        <option value="bar">Bar</option>
+        <option value="big">Big Cover</option>
+        <option value="minimal">Minimal</option>
+      </select>
+      <div class="row">
+        <div><label>Ausrichtung</label>
+          <select id="align"><option value="">Links</option><option value="right">Rechts</option></select></div>
+        <div><label>Vertikal</label>
+          <select id="valign"><option value="">Oben</option><option value="bottom">Unten</option></select></div>
+      </div>
+      <div class="row">
+        <div><label>Größe</label><input type="number" id="scale" value="1" min="0.5" max="3" step="0.1"></div>
+        <div><label>Ausblenden nach (s, 0 = nie)</label><input type="number" id="hide" value="0" min="0" step="5"></div>
+      </div>
+      <div class="row">
+        <div><label>Akzentfarbe</label><input type="color" id="accent" value="#22d3ee"></div>
+        <div><label>Linienfarbe (Classic)</label><input type="color" id="line" value="#ffffff"></div>
+      </div>
+      <label>Überschrift (leer = keine)</label><input type="text" id="label" value="" placeholder="z. B. Aktueller Track">
+    </section>
+  </div>
+
+  <div class="grid mt">
+    <section class="card">
+      <h2>Einrichtung</h2>
+      <ol>
+        <li>Traktor → <b>Preferences → Broadcasting</b>: Address <b>localhost</b>, Port <b>8000</b>, Mount path <b>/</b>, Format <b>Ogg Vorbis</b> (11025 Hz / 32 kBit/s reicht).</li>
+        <li>Im Traktor-Header auf das <b>Broadcast-Symbol</b> (Antenne) klicken, bis es dauerhaft leuchtet.</li>
+        <li>In OBS eine <b>Browserquelle</b> anlegen, die URL oben einfügen, Breite 800 × Höhe 300 (Big Cover: 400 × 600).</li>
+        <li><b>Zwei PCs:</b> Programm auf dem DJ-PC starten (Traktor bleibt bei <b>localhost</b>). Oben „anderem PC" wählen und diese URL in OBS auf dem Stream-PC eintragen.</li>
+        <li>Optional: Für eine reine Textquelle in OBS die Datei <b>current-track.txt</b> im Programmordner verwenden.</li>
+      </ol>
+    </section>
+    <section class="card">
+      <h2>Test ohne Traktor</h2>
+      <label>Interpret</label><input type="text" id="tArtist" value="Metodi Hristov">
+      <label>Titel</label><input type="text" id="tTitle" value="Not Enough (Original Mix)">
+      <button class="ghost mt" id="test">Testtrack anzeigen</button>
+    </section>
+  </div>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const fields = ['skin', 'align', 'valign', 'scale', 'hide', 'accent', 'line', 'label'];
+  const defaults = { skin: 'classic', align: '', valign: '', scale: '1', hide: '0', accent: '#22d3ee', line: '#ffffff', label: '' };
+
+  try { const saved = JSON.parse(localStorage.getItem('trackcaster-settings') || '{}'); for (const f of fields) if (saved[f] != null) $(f).value = saved[f]; } catch {}
+
+  function build() {
+    const p = new URLSearchParams();
+    for (const f of fields) {
+      let v = $(f).value;
+      if (v === defaults[f] || v === '') continue;
+      if (f === 'accent' || f === 'line') v = v.replace('#', '');
+      p.set(f, v);
+    }
+    const qs = p.toString();
+    const path = `/overlay${qs ? '?' + qs : ''}`;
+    const host = $('host').value;
+    $('url').textContent = `http://${host}:${port}${path}`;
+    $('hostHint').hidden = host === 'localhost';
+    const iframe = $('preview');
+    const src = location.origin + path;
+    if (iframe.dataset.src !== src) { iframe.dataset.src = src; iframe.src = src; }
+    try { localStorage.setItem('trackcaster-host', host); } catch {}
+    try { localStorage.setItem('trackcaster-settings', JSON.stringify(Object.fromEntries(fields.map(f => [f, $(f).value])))); } catch {}
+  }
+  let port = location.port || '80';
+  fields.concat('host').forEach(f => $(f).addEventListener('input', build));
+  build();
+
+  // Netzwerkadressen dieses PCs für OBS auf einem zweiten PC
+  fetch('/api/info').then(r => r.json()).then(info => {
+    port = String(info.webPort);
+    for (const ip of info.addresses) $('host').add(new Option(`anderem PC – über IP ${ip}`, ip));
+    $('host').add(new Option(`anderem PC – über Namen ${info.hostname}`, info.hostname));
+    let saved = null;
+    try { saved = localStorage.getItem('trackcaster-host'); } catch {}
+    if (saved && [...$('host').options].some(o => o.value === saved)) $('host').value = saved;
+    build();
+  }).catch(() => {});
+
+  $('copy').onclick = async () => {
+    try { await navigator.clipboard.writeText($('url').textContent); $('copy').textContent = 'Kopiert ✓'; }
+    catch { $('copy').textContent = 'Markieren & kopieren'; }
+    setTimeout(() => $('copy').textContent = 'Kopieren', 1500);
+  };
+  $('test').onclick = () => fetch(`/api/test?artist=${encodeURIComponent($('tArtist').value)}&title=${encodeURIComponent($('tTitle').value)}`);
+
+  function connect() {
+    const es = new EventSource('/events');
+    es.onmessage = (e) => {
+      const s = JSON.parse(e.data);
+      $('dot').classList.toggle('ok', s.connected);
+      $('conn').textContent = s.connected ? 'Traktor sendet' : 'Warte auf Traktor …';
+      $('now').textContent = s.title ? `${s.artist ? s.artist + ' — ' : ''}${s.title}${s.cover ? '' : ' (ohne Cover)'}` : 'Noch kein Track empfangen.';
+    };
+    es.onerror = () => { es.close(); setTimeout(connect, 2000); };
+  }
+  connect();
+</script>
+</body>
+</html>

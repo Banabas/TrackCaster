@@ -1,0 +1,8 @@
+node_modules/
+cover-cache/*
+!cover-cache/.gitkeep
+covers/*
+!covers/LIESMICH.txt
+current-track.txt
+.DS_Store
+Thumbs.db

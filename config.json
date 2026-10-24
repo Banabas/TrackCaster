@@ -1,0 +1,8 @@
+{
+  "ingestPort": 8000,
+  "webPort": 8080,
+  "collectionPath": "auto",
+  "onlineCoverFallback": true,
+  "compilationCovers": "online",
+  "writeTextFile": true
+}

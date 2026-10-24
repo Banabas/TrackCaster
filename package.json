@@ -1,0 +1,11 @@
+{
+  "name": "trackcaster",
+  "version": "1.0.0",
+  "description": "OBS-Track-Overlay für Traktor mit Covern – lokal, über Traktors Broadcasting",
+  "main": "server.js",
+  "private": true,
+  "license": "MIT",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" },
+  "dependencies": { "music-metadata": "^12.2.3" }
+}

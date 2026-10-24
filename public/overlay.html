@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>TrackCaster Overlay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #22d3ee;
+    --fg: #ffffff;
+    --fg-dim: rgba(255,255,255,.72);
+    --panel: rgba(12, 14, 20, .72);
+    --scale: 1;
+  }
+  html, body { margin: 0; background: transparent; overflow: hidden; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif; color: var(--fg);
+    padding: 12px; box-sizing: border-box; height: 100vh;
+    display: flex; align-items: flex-start;
+  }
+  body.right { justify-content: flex-end; }
+  body.bottom { align-items: flex-end; }
+
+  #tc {
+    display: flex; align-items: center; gap: calc(16px * var(--scale));
+    max-width: 100%; min-width: 0;
+    transition: opacity .6s ease, transform .6s cubic-bezier(.2,.8,.2,1);
+  }
+  #tc.hidden { opacity: 0; transform: translateY(12px); }
+  body.right #tc { flex-direction: row-reverse; text-align: right; }
+
+  .cover {
+    position: relative; flex: none; overflow: hidden;
+    width: calc(88px * var(--scale)); height: calc(88px * var(--scale));
+    border-radius: calc(10px * var(--scale));
+    background: linear-gradient(135deg, #1f2937, #0b0f17);
+  }
+  .cover img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    opacity: 0; transition: opacity .5s ease;
+  }
+  .cover img.on { opacity: 1; }
+  .cover .ph {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    color: rgba(255,255,255,.35); font-size: calc(34px * var(--scale));
+  }
+
+  .text { min-width: 0; display: flex; flex-direction: column; gap: calc(3px * var(--scale)); }
+  .label {
+    font-family: 'JetBrains Mono', monospace; font-size: calc(11px * var(--scale));
+    letter-spacing: .18em; text-transform: uppercase; color: var(--accent);
+    display: flex; align-items: center; gap: 8px;
+  }
+  body.right .label { justify-content: flex-end; }
+  .eq { display: inline-flex; gap: 2px; align-items: flex-end; height: calc(10px * var(--scale)); }
+  .eq i { width: 3px; background: var(--accent); border-radius: 1px; animation: eq 1s ease-in-out infinite; }
+  .eq i:nth-child(2) { animation-delay: -.3s; } .eq i:nth-child(3) { animation-delay: -.6s; }
+  @keyframes eq { 0%,100% { height: 30%; } 50% { height: 100%; } }
+
+  .line { overflow: hidden; white-space: nowrap; }
+  .line span { display: inline-block; }
+  .line.scroll span { animation: marquee var(--dur, 10s) linear infinite; padding-right: 3em; }
+  @keyframes marquee { 0%, 15% { transform: translateX(0); } 85%, 100% { transform: translateX(var(--shift)); } }
+  .title { font-weight: 800; font-size: calc(22px * var(--scale)); line-height: 1.15; }
+  .artist { font-weight: 500; font-size: calc(16px * var(--scale)); color: var(--fg-dim); }
+  .album { font-size: calc(12px * var(--scale)); color: rgba(255,255,255,.5); display: none; }
+
+  .swap { animation: swap .7s cubic-bezier(.2,.8,.2,1); }
+  @keyframes swap { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+
+  /* ---------- Skin: classic (Standard) ---------- */
+  .skin-classic #tc { gap: calc(14px * var(--scale)); }
+  .skin-classic .cover {
+    width: calc(90px * var(--scale)); height: calc(90px * var(--scale)); border-radius: 0;
+    border: calc(3px * var(--scale)) solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,.6);
+  }
+  .skin-classic .text {
+    gap: 0; width: calc(230px * var(--scale)); max-width: 70vw;
+    font-family: Arial, Helvetica, sans-serif; text-shadow: 0 1px 4px rgba(0,0,0,.85);
+  }
+  .skin-classic .label {
+    font-family: inherit; text-transform: none; letter-spacing: 0; color: var(--fg);
+    font-size: calc(17px * var(--scale)); font-weight: 400;
+  }
+  .skin-classic .eq { display: none; }
+  .skin-classic .artist {
+    order: 1; color: var(--fg); font-weight: 400; font-size: calc(13px * var(--scale));
+    padding-bottom: calc(6px * var(--scale)); margin-bottom: calc(8px * var(--scale));
+    border-bottom: calc(2px * var(--scale)) solid var(--line, #fff);
+  }
+  .skin-classic .title {
+    order: 2; font-weight: 400; font-size: calc(13px * var(--scale));
+    padding-bottom: calc(6px * var(--scale));
+    border-bottom: calc(2px * var(--scale)) solid var(--line, #fff);
+  }
+  .skin-classic .album { order: 3; margin-top: 4px; }
+
+  /* ---------- Skin: card ---------- */
+  .skin-card #tc {
+    background: var(--panel); backdrop-filter: blur(14px);
+    padding: calc(12px * var(--scale)); padding-right: calc(22px * var(--scale));
+    border-radius: calc(16px * var(--scale));
+    border: 1px solid rgba(255,255,255,.08);
+    box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.02);
+    position: relative; overflow: hidden;
+  }
+  .skin-card #tc::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent);
+  }
+  body.right.skin-card #tc::before { left: auto; right: 0; }
+
+  /* ---------- Skin: minimal (nur Text mit Schatten) ---------- */
+  .skin-minimal .cover { width: calc(56px * var(--scale)); height: calc(56px * var(--scale)); border-radius: 6px; }
+  .skin-minimal .text { text-shadow: 0 2px 8px rgba(0,0,0,.8); }
+  .skin-minimal .label { display: none; }
+
+  /* ---------- Skin: vinyl (drehende Platte) ---------- */
+  .skin-vinyl .cover {
+    width: calc(104px * var(--scale)); height: calc(104px * var(--scale)); border-radius: 50%;
+    background: repeating-radial-gradient(circle, #111 0 2px, #1b1b1b 2px 4px);
+    box-shadow: 0 6px 20px rgba(0,0,0,.5);
+    animation: spin 4s linear infinite;
+  }
+  .skin-vinyl .cover img { inset: 26%; width: 48%; height: 48%; border-radius: 50%; }
+  .skin-vinyl .cover::after {
+    content: ''; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px;
+    border-radius: 50%; background: #000; z-index: 2;
+  }
+  .skin-vinyl .cover .ph { display: none; }
+  .skin-vinyl #tc {
+    background: var(--panel); backdrop-filter: blur(14px);
+    padding: calc(10px * var(--scale)) calc(24px * var(--scale)) calc(10px * var(--scale)) calc(10px * var(--scale));
+    border-radius: 999px;
+  }
+  body.right.skin-vinyl #tc { padding: calc(10px * var(--scale)) calc(10px * var(--scale)) calc(10px * var(--scale)) calc(24px * var(--scale)); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- Skin: bar (schmaler Balken) ---------- */
+  .skin-bar #tc {
+    background: var(--panel); backdrop-filter: blur(10px);
+    padding: calc(6px * var(--scale)) calc(18px * var(--scale)) calc(6px * var(--scale)) calc(6px * var(--scale));
+    border-radius: calc(8px * var(--scale)); gap: calc(12px * var(--scale));
+    border-bottom: 2px solid var(--accent);
+  }
+  .skin-bar .cover { width: calc(36px * var(--scale)); height: calc(36px * var(--scale)); border-radius: 5px; }
+  .skin-bar .text { flex-direction: row; align-items: baseline; gap: 10px; }
+  .skin-bar .label { display: none; }
+  .skin-bar .title { font-size: calc(17px * var(--scale)); }
+  .skin-bar .artist { font-size: calc(15px * var(--scale)); }
+  .skin-bar .artist::before { content: '—  '; color: var(--accent); }
+
+  /* ---------- Skin: big (großes Cover, unscharfer Hintergrund) ---------- */
+  .skin-big #tc {
+    position: relative; overflow: hidden; flex-direction: column; align-items: flex-start;
+    width: calc(320px * var(--scale)); padding: calc(18px * var(--scale));
+    border-radius: calc(20px * var(--scale)); background: #0b0f17;
+    box-shadow: 0 16px 40px rgba(0,0,0,.45);
+  }
+  .skin-big .bg {
+    position: absolute; inset: -40px; background-size: cover; background-position: center;
+    filter: blur(30px) saturate(1.4) brightness(.55); transition: background-image .6s;
+  }
+  .skin-big .cover, .skin-big .text { position: relative; }
+  .skin-big .cover { width: 100%; height: auto; aspect-ratio: 1; border-radius: calc(14px * var(--scale)); box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+  .skin-big .text { width: 100%; }
+  .skin-big .title { font-size: calc(24px * var(--scale)); }
+  .skin-big .album { display: block; }
+  body.right.skin-big #tc { align-items: flex-end; }
+  .bg { display: none; } .skin-big .bg { display: block; }
+</style>
+</head>
+<body>
+<div id="tc" class="hidden">
+  <div class="bg"></div>
+  <div class="cover"><div class="ph">♪</div><img alt=""></div>
+  <div class="text">
+    <div class="label"><span class="eq"><i></i><i></i><i></i></span><span id="labelText"></span></div>
+    <div class="line title"><span id="title"></span></div>
+    <div class="line artist"><span id="artist"></span></div>
+    <div class="line album"><span id="album"></span></div>
+  </div>
+</div>
+<script>
+  // URL-Parameter: skin, accent, line, hide, align, valign, scale, label, album, nocover
+  const q = new URLSearchParams(location.search);
+  const skin = q.get('skin') || 'classic';
+  if (q.get('line')) document.documentElement.style.setProperty('--line', '#' + q.get('line').replace('#', ''));
+  document.body.classList.add('skin-' + skin);
+  if (q.get('align') === 'right') document.body.classList.add('right');
+  if (q.get('valign') === 'bottom') document.body.classList.add('bottom');
+  if (q.get('accent')) document.documentElement.style.setProperty('--accent', '#' + q.get('accent').replace('#', ''));
+  if (q.get('scale')) document.documentElement.style.setProperty('--scale', q.get('scale'));
+  // Überschrift nur, wenn eine eigene Beschriftung gesetzt ist
+  if (q.get('label')) document.getElementById('labelText').textContent = q.get('label');
+  else document.querySelector('.label').remove();
+  if (q.get('album') === '1') document.querySelector('.album').style.display = 'block';
+  if (q.get('nocover') === '1') document.querySelector('.cover').style.display = 'none';
+  const hideAfter = Number(q.get('hide') || 0); // Sekunden, 0 = immer sichtbar
+
+  const np = document.getElementById('tc');
+  const img = np.querySelector('.cover img');
+  const bg = np.querySelector('.bg');
+  let lastId = null, lastCover = null, hideTimer = null;
+
+  function setLine(id, text) {
+    const span = document.getElementById(id);
+    const line = span.parentElement;
+    span.textContent = text;
+    line.classList.remove('scroll');
+    requestAnimationFrame(() => {
+      const over = span.scrollWidth - line.clientWidth;
+      if (over > 4) {
+        line.style.setProperty('--shift', -(over + 8) + 'px');
+        line.style.setProperty('--dur', Math.max(8, over / 25) + 's');
+        line.classList.add('scroll');
+      }
+    });
+  }
+
+  function setCover(url) {
+    if (url === lastCover) return;
+    lastCover = url;
+    img.classList.remove('on');
+    if (!url) { img.removeAttribute('src'); bg.style.backgroundImage = ''; return; }
+    const pre = new Image();
+    pre.onload = () => {
+      if (lastCover !== url) return;
+      img.src = url; img.classList.add('on');
+      bg.style.backgroundImage = `url("${url}")`;
+    };
+    pre.src = url;
+  }
+
+  function show() {
+    np.classList.remove('hidden');
+    clearTimeout(hideTimer);
+    if (hideAfter > 0) hideTimer = setTimeout(() => np.classList.add('hidden'), hideAfter * 1000);
+  }
+
+  function render(s) {
+    if (!s.title && !s.artist) { np.classList.add('hidden'); return; }
+    const changed = s.id !== lastId;
+    if (changed) {
+      lastId = s.id;
+      setLine('title', s.title || s.artist);
+      setLine('artist', s.title ? s.artist : '');
+      const t = np.querySelector('.text');
+      t.classList.remove('swap'); void t.offsetWidth; t.classList.add('swap');
+      show();
+    }
+    setLine('album', s.album || '');
+    setCover(s.cover);
+  }
+
+  function connect() {
+    const es = new EventSource('/events');
+    es.onmessage = (e) => render(JSON.parse(e.data));
+    es.onerror = () => { es.close(); setTimeout(connect, 2000); };
+  }
+  connect();
+</script>
+</body>
+</html>
