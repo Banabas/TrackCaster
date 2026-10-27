@@ -122,4 +122,4 @@ Zusätzlich wird `current-track.txt` (`Interpret - Titel`) im Programmordner ges
 ## Unterstützen
 
 TrackCaster ist kostenlos. Wenn es dir gefällt, freue ich mich über einen Kaffee:
-[ko-fi.com/bruc3b4nn3r73561](https://ko-fi.com/bruc3b4nn3r73561)
+[ko-fi.com/bruc3b4nn3r254](https://ko-fi.com/bruc3b4nn3r254)
