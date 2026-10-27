@@ -13,8 +13,8 @@
   h1 { font-size: 26px; font-weight: 800; margin: 0 0 4px; }
   h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .12em; color: var(--dim); margin: 0 0 14px; font-weight: 600; }
   p.sub { color: var(--dim); margin: 0 0 28px; }
-  .grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
-  @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+  .grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; }
+  @media (max-width: 820px) { .grid { grid-template-columns: minmax(0, 1fr); } }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
   .status { display: flex; gap: 10px; align-items: center; font-weight: 600; }
   .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--warn); box-shadow: 0 0 12px var(--warn); }
