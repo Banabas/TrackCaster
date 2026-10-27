@@ -3,6 +3,8 @@
 Zeigt im Stream, welcher Track in Traktor läuft – mit Cover. Läuft lokal (Windows und macOS),
 ohne Konto, ohne Cloud, ohne Abo.
 
+![Einstellungsseite von TrackCaster](docs/einstellungen.png)
+
 Traktor broadcastet an dieses Programm (es gibt sich als Icecast-Server aus). Interpret und
 Titel kommen aus dem Broadcast-Stream. Das Cover wird in dieser Reihenfolge gesucht:
 
