@@ -16,7 +16,7 @@
   }
   html, body { margin: 0; background: transparent; overflow: hidden; }
   body {
-    font-family: 'Inter', system-ui, sans-serif; color: var(--fg);
+    font-family: var(--font, 'Inter'), system-ui, sans-serif; color: var(--fg);
     padding: 12px; box-sizing: border-box; height: 100vh;
     display: flex; align-items: flex-start;
   }
@@ -51,7 +51,7 @@
 
   .text { min-width: 0; display: flex; flex-direction: column; gap: calc(3px * var(--scale)); }
   .label {
-    font-family: 'JetBrains Mono', monospace; font-size: calc(11px * var(--scale) * var(--label-scale));
+    font-family: var(--font, 'JetBrains Mono'), monospace; font-size: calc(11px * var(--scale) * var(--label-scale));
     letter-spacing: .18em; text-transform: uppercase; color: var(--accent);
     display: flex; align-items: center; gap: 8px;
   }
@@ -80,7 +80,7 @@
   }
   .skin-classic .text {
     gap: 0; width: calc(230px * var(--scale)); max-width: 70vw;
-    font-family: Arial, Helvetica, sans-serif; text-shadow: 0 1px 4px rgba(0,0,0,.85);
+    font-family: var(--font, Arial), Helvetica, sans-serif; text-shadow: 0 1px 4px rgba(0,0,0,.85);
   }
   .skin-classic .label {
     font-family: inherit; text-transform: none; letter-spacing: 0; color: var(--fg);
@@ -187,7 +187,7 @@
   </div>
 </div>
 <script>
-  // URL-Parameter: skin, accent, line, hide, align, valign, scale, label, labelsize, album, nocover
+  // URL-Parameter: skin, font, accent, line, hide, align, valign, scale, label, labelsize, album, nocover
   const q = new URLSearchParams(location.search);
   const skin = q.get('skin') || 'classic';
   if (q.get('line')) document.documentElement.style.setProperty('--line', '#' + q.get('line').replace('#', ''));
@@ -196,6 +196,23 @@
   if (q.get('align') === 'center') document.body.classList.add('center');
   if (q.get('valign') === 'bottom') document.body.classList.add('bottom');
   if (q.get('valign') === 'center') document.body.classList.add('middle');
+  // Schriften: Name → Google-Fonts-Schnitte (leer = Systemschrift, nichts zu laden)
+  const FONTS = {
+    'Montserrat': '400;500;700;800', 'Poppins': '400;500;700;800', 'Oswald': '400;500;700',
+    'Bebas Neue': '400', 'Roboto Condensed': '400;500;700;800', 'Space Grotesk': '400;500;700',
+    'Rajdhani': '400;500;700', 'Orbitron': '400;500;700;800', 'Playfair Display': '400;500;700;800',
+    'Permanent Marker': '400', 'JetBrains Mono': '400;500;700;800', 'Arial': '',
+  };
+  const font = q.get('font');
+  if (font && font in FONTS) {
+    if (FONTS[font]) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(font)}:wght@${FONTS[font]}&display=swap`;
+      document.head.appendChild(link);
+    }
+    document.documentElement.style.setProperty('--font', `'${font}'`);
+  }
   if (q.get('accent')) document.documentElement.style.setProperty('--accent', '#' + q.get('accent').replace('#', ''));
   if (q.get('scale')) document.documentElement.style.setProperty('--scale', q.get('scale'));
   if (q.get('labelsize')) document.documentElement.style.setProperty('--label-scale', q.get('labelsize'));
@@ -225,6 +242,11 @@
       }
     });
   }
+
+  // Laufschrift neu messen, sobald eine Webschrift fertig geladen ist
+  document.fonts.addEventListener('loadingdone', () => {
+    for (const id of ['title', 'artist', 'album']) setLine(id, document.getElementById(id).textContent);
+  });
 
   function setCover(url) {
     if (url === lastCover) return;

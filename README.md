@@ -77,6 +77,7 @@ URL-Parameter (die Einstellungsseite baut die URL für dich):
 | Parameter | Werte | Standard |
 |---|---|---|
 | `skin` | `classic`, `card`, `vinyl`, `bar`, `big`, `minimal` | `classic` |
+| `font` | `Montserrat`, `Poppins`, `Oswald`, `Bebas Neue`, `Roboto Condensed`, `Space Grotesk`, `Rajdhani`, `Orbitron`, `Playfair Display`, `Permanent Marker`, `JetBrains Mono`, `Arial` | je nach Skin |
 | `align` | `center`, `right` | links |
 | `valign` | `center`, `bottom` | oben |
 | `scale` | z. B. `1.5` | `1` |

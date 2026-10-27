@@ -83,6 +83,22 @@
         <option value="big">Big Cover</option>
         <option value="minimal">Minimal</option>
       </select>
+      <label>Schrift</label>
+      <select id="font">
+        <option value="">Standard (je nach Skin)</option>
+        <option>Montserrat</option>
+        <option>Poppins</option>
+        <option>Oswald</option>
+        <option>Bebas Neue</option>
+        <option>Roboto Condensed</option>
+        <option>Space Grotesk</option>
+        <option>Rajdhani</option>
+        <option>Orbitron</option>
+        <option>Playfair Display</option>
+        <option>Permanent Marker</option>
+        <option>JetBrains Mono</option>
+        <option>Arial</option>
+      </select>
       <div class="row">
         <div><label>Ausrichtung</label>
           <select id="align"><option value="">Links</option><option value="center">Mitte</option><option value="right">Rechts</option></select></div>
@@ -124,8 +140,8 @@
 </main>
 <script>
   const $ = (id) => document.getElementById(id);
-  const fields = ['skin', 'align', 'valign', 'scale', 'hide', 'accent', 'line', 'label', 'labelsize'];
-  const defaults = { skin: 'classic', align: '', valign: '', scale: '1', hide: '0', accent: '#22d3ee', line: '#ffffff', label: '', labelsize: '1' };
+  const fields = ['skin', 'font', 'align', 'valign', 'scale', 'hide', 'accent', 'line', 'label', 'labelsize'];
+  const defaults = { skin: 'classic', font: '', align: '', valign: '', scale: '1', hide: '0', accent: '#22d3ee', line: '#ffffff', label: '', labelsize: '1' };
 
   try { const saved = JSON.parse(localStorage.getItem('trackcaster-settings') || '{}'); for (const f of fields) if (saved[f] != null) $(f).value = saved[f]; } catch {}
 
