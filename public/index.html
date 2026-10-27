@@ -114,6 +114,8 @@
         <div><label>Linienfarbe (Classic)</label><input type="color" id="line" value="#ffffff"></div>
       </div>
       <label>Überschrift (leer = keine)</label><input type="text" id="label" value="" placeholder="z. B. Aktueller Track">
+      <label>Schrift der Überschrift</label>
+      <select id="labelfont"><option value="">wie Schrift</option></select>
       <label>Größe der Überschrift <output id="labelsizeVal"></output></label>
       <input type="range" id="labelsize" value="1" min="0.5" max="3" step="0.1">
     </section>
@@ -140,8 +142,10 @@
 </main>
 <script>
   const $ = (id) => document.getElementById(id);
-  const fields = ['skin', 'font', 'align', 'valign', 'scale', 'hide', 'accent', 'line', 'label', 'labelsize'];
-  const defaults = { skin: 'classic', font: '', align: '', valign: '', scale: '1', hide: '0', accent: '#22d3ee', line: '#ffffff', label: '', labelsize: '1' };
+  const fields = ['skin', 'font', 'align', 'valign', 'scale', 'hide', 'accent', 'line', 'label', 'labelsize', 'labelfont'];
+  const defaults = { skin: 'classic', font: '', align: '', valign: '', scale: '1', hide: '0', accent: '#22d3ee', line: '#ffffff', label: '', labelsize: '1', labelfont: '' };
+
+  for (const o of $('font').options) if (o.value) $('labelfont').add(new Option(o.text, o.value));
 
   try { const saved = JSON.parse(localStorage.getItem('trackcaster-settings') || '{}'); for (const f of fields) if (saved[f] != null) $(f).value = saved[f]; } catch {}
 

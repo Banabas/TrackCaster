@@ -85,6 +85,7 @@ URL-Parameter (die Einstellungsseite baut die URL für dich):
 | `accent` | Hex-Farbe ohne `#`, z. B. `ff3366` | `22d3ee` |
 | `line` | Linienfarbe beim Classic-Skin | `ffffff` |
 | `label` | Optionale Überschrift über dem Track | keine |
+| `labelfont` | Schrift der Überschrift, Werte wie bei `font` | wie `font` |
 | `labelsize` | Größe der Überschrift, z. B. `2` (nicht bei Bar und Minimal) | `1` |
 | `album` | `1` zeigt das Album | aus (außer Big) |
 | `nocover` | `1` blendet das Cover aus | |

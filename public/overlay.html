@@ -51,7 +51,7 @@
 
   .text { min-width: 0; display: flex; flex-direction: column; gap: calc(3px * var(--scale)); }
   .label {
-    font-family: var(--font, 'JetBrains Mono'), monospace; font-size: calc(11px * var(--scale) * var(--label-scale));
+    font-family: var(--label-font, var(--font, 'JetBrains Mono')), monospace; font-size: calc(11px * var(--scale) * var(--label-scale));
     letter-spacing: .18em; text-transform: uppercase; color: var(--accent);
     display: flex; align-items: center; gap: 8px;
   }
@@ -83,7 +83,7 @@
     font-family: var(--font, Arial), Helvetica, sans-serif; text-shadow: 0 1px 4px rgba(0,0,0,.85);
   }
   .skin-classic .label {
-    font-family: inherit; text-transform: none; letter-spacing: 0; color: var(--fg);
+    font-family: var(--label-font, inherit); text-transform: none; letter-spacing: 0; color: var(--fg);
     font-size: calc(17px * var(--scale) * var(--label-scale)); font-weight: 400;
   }
   .skin-classic .eq { display: none; }
@@ -187,7 +187,7 @@
   </div>
 </div>
 <script>
-  // URL-Parameter: skin, font, accent, line, hide, align, valign, scale, label, labelsize, album, nocover
+  // URL-Parameter: skin, font, accent, line, hide, align, valign, scale, label, labelsize, labelfont, album, nocover
   const q = new URLSearchParams(location.search);
   const skin = q.get('skin') || 'classic';
   if (q.get('line')) document.documentElement.style.setProperty('--line', '#' + q.get('line').replace('#', ''));
@@ -203,16 +203,19 @@
     'Rajdhani': '400;500;700', 'Orbitron': '400;500;700;800', 'Playfair Display': '400;500;700;800',
     'Permanent Marker': '400', 'JetBrains Mono': '400;500;700;800', 'Arial': '',
   };
-  const font = q.get('font');
-  if (font && font in FONTS) {
+  function useFont(param, cssVar) {
+    const font = q.get(param);
+    if (!font || !(font in FONTS)) return;
     if (FONTS[font]) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(font)}:wght@${FONTS[font]}&display=swap`;
       document.head.appendChild(link);
     }
-    document.documentElement.style.setProperty('--font', `'${font}'`);
+    document.documentElement.style.setProperty(cssVar, `'${font}'`);
   }
+  useFont('font', '--font');
+  useFont('labelfont', '--label-font');
   if (q.get('accent')) document.documentElement.style.setProperty('--accent', '#' + q.get('accent').replace('#', ''));
   if (q.get('scale')) document.documentElement.style.setProperty('--scale', q.get('scale'));
   if (q.get('labelsize')) document.documentElement.style.setProperty('--label-scale', q.get('labelsize'));
