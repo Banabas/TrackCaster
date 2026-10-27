@@ -118,3 +118,8 @@ Zusätzlich wird `current-track.txt` (`Interpret - Titel`) im Programmordner ges
 - **Titel kommt, Cover nicht:** Track hat kein eingebettetes Cover und liegt nicht in der Collection mit genau
   diesem Interpret/Titel. Die Konsole zeigt, woher ein Cover kam oder dass keins gefunden wurde.
 - **Overlay leer:** In OBS die Browserquelle aktualisieren („Cache der aktuellen Seite aktualisieren").
+
+## Unterstützen
+
+TrackCaster ist kostenlos. Wenn es dir gefällt, freue ich mich über einen Kaffee:
+[ko-fi.com/bruc3b4nn3r73561](https://ko-fi.com/bruc3b4nn3r73561)
