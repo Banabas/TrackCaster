@@ -25,7 +25,10 @@
     background: radial-gradient(circle at 30% 20%, #2a2f3a, #08090c 70%),
                 repeating-linear-gradient(45deg, rgba(255,255,255,.03) 0 12px, transparent 12px 24px);
   }
-  .stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .stage iframe {
+    position: absolute; left: 50%; top: 50%; border: 0; transform-origin: center;
+    outline: 1px dashed rgba(255,255,255,.18);
+  }
   label { display: block; font-size: 13px; color: var(--dim); margin: 12px 0 6px; }
   select, input[type=text], input[type=number] {
     width: 100%; background: #0f1218; border: 1px solid var(--line); color: var(--fg);
@@ -55,10 +58,11 @@
   <div class="grid">
     <section class="card">
       <h2>Vorschau</h2>
-      <div class="stage"><iframe id="preview"></iframe></div>
+      <div class="stage" id="stage"><iframe id="preview"></iframe></div>
       <label>OBS läuft auf …</label>
       <select id="host"><option value="localhost">diesem PC (localhost)</option></select>
       <div class="url"><code id="url"></code><button id="copy">Kopieren</button></div>
+      <p class="hint">Browserquelle in OBS: Breite <b id="obsW">800</b> × Höhe <b id="obsH">300</b> (gestrichelter Rahmen in der Vorschau).</p>
       <p class="hint" id="hostHint" hidden>Am Stream-PC muss dieser Rechner erreichbar sein. Beim ersten Start fragt das System nach eingehenden Verbindungen: erlauben (Windows: „Private Netzwerke"). Unter Windows hilft sonst <b>firewall-freigeben.bat</b>.</p>
     </section>
 
@@ -79,9 +83,9 @@
       </select>
       <div class="row">
         <div><label>Ausrichtung</label>
-          <select id="align"><option value="">Links</option><option value="right">Rechts</option></select></div>
+          <select id="align"><option value="">Links</option><option value="center">Mitte</option><option value="right">Rechts</option></select></div>
         <div><label>Vertikal</label>
-          <select id="valign"><option value="">Oben</option><option value="bottom">Unten</option></select></div>
+          <select id="valign"><option value="">Oben</option><option value="center">Mitte</option><option value="bottom">Unten</option></select></div>
       </div>
       <div class="row">
         <div><label>Größe</label><input type="number" id="scale" value="1" min="0.5" max="3" step="0.1"></div>
@@ -101,7 +105,7 @@
       <ol>
         <li>Traktor → <b>Preferences → Broadcasting</b>: Address <b>localhost</b>, Port <b>8000</b>, Mount path <b>/</b>, Format <b>Ogg Vorbis</b> (11025 Hz / 32 kBit/s reicht).</li>
         <li>Im Traktor-Header auf das <b>Broadcast-Symbol</b> (Antenne) klicken, bis es dauerhaft leuchtet.</li>
-        <li>In OBS eine <b>Browserquelle</b> anlegen, die URL oben einfügen, Breite 800 × Höhe 300 (Big Cover: 400 × 600).</li>
+        <li>In OBS eine <b>Browserquelle</b> anlegen, die URL oben einfügen, Breite und Höhe wie unter der URL angegeben.</li>
         <li><b>Zwei PCs:</b> Programm auf dem DJ-PC starten (Traktor bleibt bei <b>localhost</b>). Oben „anderem PC" wählen und diese URL in OBS auf dem Stream-PC eintragen.</li>
         <li>Optional: Für eine reine Textquelle in OBS die Datei <b>current-track.txt</b> im Programmordner verwenden.</li>
       </ol>
@@ -137,9 +141,26 @@
     const iframe = $('preview');
     const src = location.origin + path;
     if (iframe.dataset.src !== src) { iframe.dataset.src = src; iframe.src = src; }
+    fitPreview();
     try { localStorage.setItem('trackcaster-host', host); } catch {}
     try { localStorage.setItem('trackcaster-settings', JSON.stringify(Object.fromEntries(fields.map(f => [f, $(f).value])))); } catch {}
   }
+  // OBS-Quellgröße wächst mit der Größe, die Vorschau zeigt genau diesen Ausschnitt
+  function obsSize() {
+    const k = parseFloat($('scale').value) || 1;
+    const [w, h] = $('skin').value === 'big' ? [400, 600] : [800, 300];
+    return [Math.round(w * k), Math.round(h * k)];
+  }
+  function fitPreview() {
+    const [w, h] = obsSize();
+    $('obsW').textContent = w; $('obsH').textContent = h;
+    const iframe = $('preview'), stage = $('stage');
+    const k = Math.min(1, stage.clientWidth / w, stage.clientHeight / h);
+    iframe.style.width = w + 'px'; iframe.style.height = h + 'px';
+    iframe.style.transform = `translate(-50%, -50%) scale(${k})`;
+  }
+  addEventListener('resize', fitPreview);
+
   let port = location.port || '80';
   fields.concat('host').forEach(f => $(f).addEventListener('input', build));
   build();

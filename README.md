@@ -69,15 +69,16 @@ Rechnernamen nehmen (beim Mac z. B. `Svens-MacBook.local`) oder im Router für d
 
 ## OBS
 
-Browserquelle mit `http://localhost:8080/overlay` anlegen, z. B. 800 × 300 (Big Cover: 400 × 600).
+Browserquelle mit `http://localhost:8080/overlay` anlegen, 800 × 300 (Big Cover: 400 × 600), jeweils mal `scale`.
+Die Einstellungsseite zeigt die passende Größe unter der URL an.
 
 URL-Parameter (die Einstellungsseite baut die URL für dich):
 
 | Parameter | Werte | Standard |
 |---|---|---|
 | `skin` | `classic`, `card`, `vinyl`, `bar`, `big`, `minimal` | `classic` |
-| `align` | `right` | links |
-| `valign` | `bottom` | oben |
+| `align` | `center`, `right` | links |
+| `valign` | `center`, `bottom` | oben |
 | `scale` | z. B. `1.5` | `1` |
 | `hide` | Sekunden, nach denen das Overlay ausblendet (`0` = nie) | `0` |
 | `accent` | Hex-Farbe ohne `#`, z. B. `ff3366` | `22d3ee` |

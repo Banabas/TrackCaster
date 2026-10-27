@@ -21,6 +21,8 @@
   }
   body.right { justify-content: flex-end; }
   body.bottom { align-items: flex-end; }
+  body.center { justify-content: center; }
+  body.middle { align-items: center; }
 
   #tc {
     display: flex; align-items: center; gap: calc(16px * var(--scale));
@@ -167,6 +169,8 @@
   .skin-big .title { font-size: calc(24px * var(--scale)); }
   .skin-big .album { display: block; }
   body.right.skin-big #tc { align-items: flex-end; }
+  body.center.skin-big #tc { align-items: center; text-align: center; }
+  body.center.skin-big .label { justify-content: center; }
   .bg { display: none; } .skin-big .bg { display: block; }
 </style>
 </head>
@@ -188,7 +192,9 @@
   if (q.get('line')) document.documentElement.style.setProperty('--line', '#' + q.get('line').replace('#', ''));
   document.body.classList.add('skin-' + skin);
   if (q.get('align') === 'right') document.body.classList.add('right');
+  if (q.get('align') === 'center') document.body.classList.add('center');
   if (q.get('valign') === 'bottom') document.body.classList.add('bottom');
+  if (q.get('valign') === 'center') document.body.classList.add('middle');
   if (q.get('accent')) document.documentElement.style.setProperty('--accent', '#' + q.get('accent').replace('#', ''));
   if (q.get('scale')) document.documentElement.style.setProperty('--scale', q.get('scale'));
   // Überschrift nur, wenn eine eigene Beschriftung gesetzt ist
