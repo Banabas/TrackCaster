@@ -35,6 +35,8 @@
     padding: 9px 10px; border-radius: 8px; font: inherit; font-size: 14px;
   }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  label output { float: right; color: var(--fg); }
   input[type=color] { width: 100%; height: 38px; border: 1px solid var(--line); background: #0f1218; border-radius: 8px; padding: 3px; }
   .url { display: flex; gap: 8px; margin-top: 16px; }
   .url code {
@@ -96,6 +98,8 @@
         <div><label>Linienfarbe (Classic)</label><input type="color" id="line" value="#ffffff"></div>
       </div>
       <label>Überschrift (leer = keine)</label><input type="text" id="label" value="" placeholder="z. B. Aktueller Track">
+      <label>Größe der Überschrift <output id="labelsizeVal"></output></label>
+      <input type="range" id="labelsize" value="1" min="0.5" max="3" step="0.1">
     </section>
   </div>
 
@@ -120,8 +124,8 @@
 </main>
 <script>
   const $ = (id) => document.getElementById(id);
-  const fields = ['skin', 'align', 'valign', 'scale', 'hide', 'accent', 'line', 'label'];
-  const defaults = { skin: 'classic', align: '', valign: '', scale: '1', hide: '0', accent: '#22d3ee', line: '#ffffff', label: '' };
+  const fields = ['skin', 'align', 'valign', 'scale', 'hide', 'accent', 'line', 'label', 'labelsize'];
+  const defaults = { skin: 'classic', align: '', valign: '', scale: '1', hide: '0', accent: '#22d3ee', line: '#ffffff', label: '', labelsize: '1' };
 
   try { const saved = JSON.parse(localStorage.getItem('trackcaster-settings') || '{}'); for (const f of fields) if (saved[f] != null) $(f).value = saved[f]; } catch {}
 
@@ -133,6 +137,7 @@
       if (f === 'accent' || f === 'line') v = v.replace('#', '');
       p.set(f, v);
     }
+    $('labelsizeVal').textContent = Math.round($('labelsize').value * 100) + ' %';
     const qs = p.toString();
     const path = `/overlay${qs ? '?' + qs : ''}`;
     const host = $('host').value;

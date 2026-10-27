@@ -12,6 +12,7 @@
     --fg-dim: rgba(255,255,255,.72);
     --panel: rgba(12, 14, 20, .72);
     --scale: 1;
+    --label-scale: 1;
   }
   html, body { margin: 0; background: transparent; overflow: hidden; }
   body {
@@ -50,12 +51,12 @@
 
   .text { min-width: 0; display: flex; flex-direction: column; gap: calc(3px * var(--scale)); }
   .label {
-    font-family: 'JetBrains Mono', monospace; font-size: calc(11px * var(--scale));
+    font-family: 'JetBrains Mono', monospace; font-size: calc(11px * var(--scale) * var(--label-scale));
     letter-spacing: .18em; text-transform: uppercase; color: var(--accent);
     display: flex; align-items: center; gap: 8px;
   }
   body.right .label { justify-content: flex-end; }
-  .eq { display: inline-flex; gap: 2px; align-items: flex-end; height: calc(10px * var(--scale)); }
+  .eq { display: inline-flex; gap: 2px; align-items: flex-end; height: calc(10px * var(--scale) * var(--label-scale)); }
   .eq i { width: 3px; background: var(--accent); border-radius: 1px; animation: eq 1s ease-in-out infinite; }
   .eq i:nth-child(2) { animation-delay: -.3s; } .eq i:nth-child(3) { animation-delay: -.6s; }
   @keyframes eq { 0%,100% { height: 30%; } 50% { height: 100%; } }
@@ -83,7 +84,7 @@
   }
   .skin-classic .label {
     font-family: inherit; text-transform: none; letter-spacing: 0; color: var(--fg);
-    font-size: calc(17px * var(--scale)); font-weight: 400;
+    font-size: calc(17px * var(--scale) * var(--label-scale)); font-weight: 400;
   }
   .skin-classic .eq { display: none; }
   .skin-classic .artist {
@@ -186,7 +187,7 @@
   </div>
 </div>
 <script>
-  // URL-Parameter: skin, accent, line, hide, align, valign, scale, label, album, nocover
+  // URL-Parameter: skin, accent, line, hide, align, valign, scale, label, labelsize, album, nocover
   const q = new URLSearchParams(location.search);
   const skin = q.get('skin') || 'classic';
   if (q.get('line')) document.documentElement.style.setProperty('--line', '#' + q.get('line').replace('#', ''));
@@ -197,6 +198,7 @@
   if (q.get('valign') === 'center') document.body.classList.add('middle');
   if (q.get('accent')) document.documentElement.style.setProperty('--accent', '#' + q.get('accent').replace('#', ''));
   if (q.get('scale')) document.documentElement.style.setProperty('--scale', q.get('scale'));
+  if (q.get('labelsize')) document.documentElement.style.setProperty('--label-scale', q.get('labelsize'));
   // Überschrift nur, wenn eine eigene Beschriftung gesetzt ist
   if (q.get('label')) document.getElementById('labelText').textContent = q.get('label');
   else document.querySelector('.label').remove();
